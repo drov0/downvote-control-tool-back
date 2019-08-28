@@ -20,7 +20,7 @@ router.get('/',  function(req, res, next) {
     // init steemconnect
     let api = sc2.Initialize({
         app:'downvote-tool',
-        callbackURL: req.app.get('env') === 'development' ? 'http://localhost:4002/auth/conf' : "https://sc.steempress.io/auth/conf",
+        callbackURL: req.app.get('env') === 'development' ? 'http://localhost:4002/auth/conf' : "",
         scope: ['login','vote'],
     });
 
