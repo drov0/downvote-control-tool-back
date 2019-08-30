@@ -49,7 +49,7 @@ router.post('/add_trail',urlencodedParser, async function(req, res, next) {
 
         let trailed_schema = Joi.object().keys({
             username: Joi.string().min(3).max(16).required(),
-            ratio: Joi.number().integer().min(0.1).max(2.5),
+            ratio: Joi.number().min(0.1).max(2.5),
         });
 
         let test = Joi.validate({username : trailed, ratio : ratio}, trailed_schema);
