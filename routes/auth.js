@@ -2,9 +2,7 @@ const utils = require("../bin/utils");
 
 var express = require('express');
 const sc2 = require('sc2-sdk');
-const Joi = require('joi');
-const fs = require('fs')
-
+const db = require("../bin/config").db;
 var router = express.Router();
 
 const dsteem = require('dsteem');
@@ -41,7 +39,13 @@ router.post('/user',urlencodedParser, async function(req, res, next) {
         const valid = await utils.sc_valid(username, token);
 
         if (valid[0] === true) {
-                return res.send({status : "ok"});
+
+
+            let data = await db("SELECT * FROM user_data WHERE username = ?", [username]);
+
+            data = data[0];
+
+            return res.send({status : "ok", threshold : data.threshold});
         } else
             return res.send({status : "ko"});
     }
@@ -65,7 +69,15 @@ router.get('/conf',async function(req, res, next) {
 
             const account = (await client.database.getAccounts([username]))[0];
 
-            account.token = access_token
+            let data = await db("SELECT * FROM user_data WHERE username = ?", [username]);
+
+            if (data.length === 0) {
+                await db("INSERT INTO user_data(username, threshold) VALUES(?,80)", [username]);
+                account.threshold = 80;
+            } else {
+                account.threshold =  data[0].threshold;
+            }
+                account.token = access_token;
 
             account.json_metadata = JSON.parse(account.json_metadata);
             return res.send("<script> window.opener.postMessage('"+JSON.stringify(account)+"',\"*\"); window.close()</script>");

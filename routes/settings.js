@@ -12,6 +12,7 @@ const bodyParser = require('body-parser');
 const urlencodedParser = bodyParser.urlencoded({limit: '500kb', extended: true});
 const sanitize = require("xss");
 const db = require("../bin/config").db;
+const Joi = require('joi');
 
 router.post('/get_trail',urlencodedParser, async function(req, res, next) {
 
@@ -44,9 +45,6 @@ router.post('/add_trail',urlencodedParser, async function(req, res, next) {
     const ratio = sanitize(req.body.ratio);
     const positive = sanitize(req.body.positive);
 
-
-
-
     if (username && token) {
 
         let trailed_schema = Joi.object().keys({
@@ -65,6 +63,74 @@ router.post('/add_trail',urlencodedParser, async function(req, res, next) {
         if (valid[0] === true) {
 
             await db("INSERT INTO trail(id, username, trailed, ratio, negative) VALUE(NULL, ?, ?, ?, ?)", [username, trailed, ratio, positive]);
+
+            return res.send({status : "ok"});
+        } else
+            return res.send({status : "ko"});
+    }
+
+    return res.send({status : "ko", data : "no_infos"});
+});
+
+
+router.post('/remove_trail',urlencodedParser, async function(req, res, next) {
+
+    const username = sanitize(req.body.username);
+    const token = sanitize(req.body.token);
+    const trailed = sanitize(req.body.trailed);
+    const positive = sanitize(req.body.positive);
+
+    if (username && token) {
+
+        let trailed_schema = Joi.object().keys({
+            username: Joi.string().min(3).max(16).required(),
+        });
+
+        let test = Joi.validate({username : trailed}, trailed_schema);
+
+        if (test.error !== null) {
+            return res.send({status : "ko"});
+        }
+
+        const valid = await utils.sc_valid(username, token);
+
+        if (valid[0] === true) {
+
+            await db("DELETE FROM trail WHERE username = ? AND trailed = ? AND negative = ?", [username, trailed, positive]);
+
+            return res.send({status : "ok"});
+        } else
+            return res.send({status : "ko"});
+    }
+
+    return res.send({status : "ko", data : "no_infos"});
+});
+
+
+
+router.post('/update_threshold',urlencodedParser, async function(req, res, next) {
+
+    const username = sanitize(req.body.username);
+    const token = sanitize(req.body.token);
+    const threshold = sanitize(req.body.threshold);
+
+    if (username && token) {
+
+        let trailed_schema = Joi.object().keys({
+            threshold: Joi.number().min(0.1).max(100).required(),
+        });
+
+        let test = Joi.validate({threshold : threshold}, trailed_schema);
+
+        if (test.error !== null) {
+            return res.send({status : "ko"});
+        }
+
+        const valid = await utils.sc_valid(username, token);
+
+        if (valid[0] === true) {
+
+            await db("UPDATE user_data SET threshold = ? WHERE username = ?", [threshold, username]);
 
             return res.send({status : "ok"});
         } else
