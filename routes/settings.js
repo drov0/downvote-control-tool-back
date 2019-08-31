@@ -62,6 +62,13 @@ router.post('/add_trail',urlencodedParser, async function(req, res, next) {
 
         if (valid[0] === true) {
 
+            let data = await db("SELECT * from trail where username = ? and trailed = ?", [username, trailed]);
+
+            if (data.length !== 0)
+            {
+                return res.send({status : "ko", error : "already exists"});
+            }
+
             await db("INSERT INTO trail(id, username, trailed, ratio, negative) VALUE(NULL, ?, ?, ?, ?)", [username, trailed, ratio, positive]);
 
             return res.send({status : "ok"});
