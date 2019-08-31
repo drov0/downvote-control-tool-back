@@ -12,6 +12,9 @@ const connection = mysql.createConnection({
 connection.connect();
 const db = promisify(connection.query).bind(connection);
 
+const account_username = "downvote-tool";
+
 module.exports = {
     db,
+    account_username
 };

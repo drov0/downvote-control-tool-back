@@ -2,7 +2,8 @@ const utils = require("../bin/utils");
 
 var express = require('express');
 const sc2 = require('sc2-sdk');
-const db = require("../bin/config").db;
+const config = require("../bin/config");
+const db = config.db;
 var router = express.Router();
 
 const dsteem = require('dsteem');
@@ -17,7 +18,7 @@ router.get('/',  function(req, res, next) {
 
     // init steemconnect
     let api = sc2.Initialize({
-        app:'downvote-tool',
+        app: config.account_username,
         callbackURL: req.app.get('env') === 'development' ? 'http://localhost:4002/auth/conf' : "https://back.downvotecontrol.com/auth/conf",
         scope: ['login','vote'],
     });
@@ -102,7 +103,7 @@ router.post('/logout',urlencodedParser, async function(req, res, next) {
 
 
             let api = sc2.Initialize({
-                app: 'downvote-tool',
+                app: config.account_username,
                 accessToken: token
             });
 
