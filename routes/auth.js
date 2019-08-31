@@ -89,4 +89,34 @@ router.get('/conf',async function(req, res, next) {
 
 
 
+router.post('/logout',urlencodedParser, async function(req, res, next) {
+
+    const username = sanitize(req.body.username);
+    const token = sanitize(req.body.token);
+
+    if (username && token) {
+
+        const valid = await utils.sc_valid(username, token);
+
+        if (valid[0] === true) {
+
+
+            let api = sc2.Initialize({
+                app: 'downvote-tool',
+                accessToken: token
+            });
+
+            api.revokeToken(function (err) {
+                if (err)
+                    console.error(err);
+            });
+
+            return res.send("ok");
+
+        }
+    }
+});
+
+
+
 module.exports = router;
