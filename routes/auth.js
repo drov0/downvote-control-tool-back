@@ -67,8 +67,9 @@ router.get('/conf',async function(req, res, next) {
 
         if (valid[0] === true) {
 
-
-            const account = (await client.database.getAccounts([username]))[0];
+            let account = {
+                username,
+            };
 
             let data = await db("SELECT * FROM user_data WHERE username = ?", [username]);
 
@@ -78,9 +79,8 @@ router.get('/conf',async function(req, res, next) {
             } else {
                 account.threshold =  data[0].threshold;
             }
-                account.token = access_token;
 
-            account.json_metadata = JSON.parse(account.json_metadata);
+            account.token = access_token;
             return res.send("<script> window.opener.postMessage('"+JSON.stringify(account)+"',\"*\"); window.close()</script>");
         }
     }
