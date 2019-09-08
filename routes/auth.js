@@ -74,7 +74,7 @@ router.get('/conf',async function(req, res, next) {
             let data = await db("SELECT * FROM user_data WHERE username = ?", [username]);
 
             if (data.length === 0) {
-                await db("INSERT INTO user_data(username, threshold) VALUES(?,80)", [username]);
+                await db("INSERT INTO user_data(username, threshold, min_payout) VALUES(?,80, 0)", [username]);
                 account.threshold = 80;
                 account.min_payout = 0;
             } else {
