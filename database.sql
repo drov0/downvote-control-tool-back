@@ -46,7 +46,8 @@ CREATE TABLE `trail` (
 
 CREATE TABLE `user_data` (
   `username` varchar(16) NOT NULL,
-  `threshold` float NOT NULL
+  `threshold` float NOT NULL,
+  `min_payout` int NOT NULL,
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
