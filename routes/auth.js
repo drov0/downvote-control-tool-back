@@ -46,7 +46,7 @@ router.post('/user',urlencodedParser, async function(req, res, next) {
 
             data = data[0];
 
-            return res.send({status : "ok", threshold : data.threshold});
+            return res.send({status : "ok", threshold : data.threshold, min_payout : data.min_payout});
         } else
             return res.send({status : "ko"});
     }
@@ -67,20 +67,22 @@ router.get('/conf',async function(req, res, next) {
 
         if (valid[0] === true) {
 
-
-            const account = (await client.database.getAccounts([username]))[0];
+            let account = {
+                username,
+            };
 
             let data = await db("SELECT * FROM user_data WHERE username = ?", [username]);
 
             if (data.length === 0) {
                 await db("INSERT INTO user_data(username, threshold) VALUES(?,80)", [username]);
                 account.threshold = 80;
+                account.min_payout = 0;
             } else {
                 account.threshold =  data[0].threshold;
+                account.min_payout =  data[0].min_payout;
             }
-                account.token = access_token;
 
-            account.json_metadata = JSON.parse(account.json_metadata);
+            account.token = access_token;
             return res.send("<script> window.opener.postMessage('"+JSON.stringify(account)+"',\"*\"); window.close()</script>");
         }
     }

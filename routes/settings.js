@@ -123,11 +123,11 @@ router.post('/update_threshold',urlencodedParser, async function(req, res, next)
 
     if (username && token) {
 
-        let trailed_schema = Joi.object().keys({
+        let schema = Joi.object().keys({
             threshold: Joi.number().min(0.1).max(100).required(),
         });
 
-        let test = Joi.validate({threshold : threshold}, trailed_schema);
+        let test = Joi.validate({threshold : threshold}, schema);
 
         if (test.error !== null) {
             return res.send({status : "ko"});
@@ -138,6 +138,41 @@ router.post('/update_threshold',urlencodedParser, async function(req, res, next)
         if (valid[0] === true) {
 
             await db("UPDATE user_data SET threshold = ? WHERE username = ?", [threshold, username]);
+
+            return res.send({status : "ok"});
+        } else
+            return res.send({status : "ko"});
+    }
+
+    return res.send({status : "ko", data : "no_infos"});
+});
+
+
+
+
+router.post('/update_min_payout',urlencodedParser, async function(req, res, next) {
+
+    const username = sanitize(req.body.username);
+    const token = sanitize(req.body.token);
+    const min_payout = sanitize(req.body.min_payout);
+
+    if (username && token) {
+
+        let schema = Joi.object().keys({
+            min_payout: Joi.number().min(0).required(),
+        });
+
+        let test = Joi.validate({min_payout : min_payout}, schema);
+
+        if (test.error !== null) {
+            return res.send({status : "ko"});
+        }
+
+        const valid = await utils.sc_valid(username, token);
+
+        if (valid[0] === true) {
+
+            await db("UPDATE user_data SET min_payout = ? WHERE username = ?", [min_payout, username]);
 
             return res.send({status : "ok"});
         } else
