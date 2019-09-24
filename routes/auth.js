@@ -107,18 +107,19 @@ router.post('/keychain/fetch_memo', async function(req, res, next) {
 
                 let {encrypted, iv} = await encrypt(username);
 
-                encrypted = "#"+encrypted
+                encrypted = "#"+encrypted;
 
                 encoded_message = steem.memo.encode(process.env.WIF, pub_key, encrypted);
 
                 await db("INSERT INTO user_login(username, encrypted_username, iv, token) VALUES(?,?,?,'')", [username, encrypted, iv]);
-
+                res.send({status : "ok", message : encoded_message});
             } else
             {
                 // We recalculate each time in case the user has changed it's keys
-                encoded_message = steem.memo.encode(process.env.WIF, pub_key, "#" + user[0].encrypted_username);
+                encoded_message = steem.memo.encode(process.env.WIF, pub_key, user[0].encrypted_username);
+                res.send({status : "ok", message : encoded_message});
             }
-            res.send({status : "ok", message : encoded_message});
+
         } else
         {
             res.send({status : "ko"});
