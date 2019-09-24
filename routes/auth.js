@@ -179,15 +179,7 @@ router.post('/user',urlencodedParser, async function(req, res, next) {
 
     if (username && token && type) {
 
-        let valid = false;
-
-        if (type === "keychain")
-        {
-           let user = await db("SELECT * FROM user_login WHERE username = ? AND token = ?", [username, token])
-            valid = user.length === 1;
-        } else {
-            valid = (await utils.sc_valid(username, token))[0];
-        }
+        let valid = await utils.valid_login(username, token, type);
 
         if (valid === true) {
 
@@ -249,15 +241,7 @@ router.post('/logout',urlencodedParser, async function(req, res, next) {
 
     if (username && token && type) {
 
-        let valid = false;
-
-        if (type === "keychain")
-        {
-            let user = await db("SELECT * FROM user_login WHERE username = ? AND token = ?", [username, token])
-            valid = user.length === 1;
-        } else {
-            valid = (await utils.sc_valid(username, token))[0];
-        }
+        let valid = await utils.valid_login(username, token, type);
 
         if (valid === true) {
 

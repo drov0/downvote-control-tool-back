@@ -18,13 +18,15 @@ router.post('/get_trail',urlencodedParser, async function(req, res, next) {
 
     const username = sanitize(req.body.username);
     const token = sanitize(req.body.token);
+    const type = sanitize(req.body.type);
+
     const positive = sanitize(req.body.positive);
 
-    if (username && token) {
+    if (username && token && type && positive) {
 
-        const valid = await utils.sc_valid(username, token);
+        const valid = await utils.valid_login(username, token, type);
 
-        if (valid[0] === true) {
+        if (valid === true) {
 
             let data = await db("SELECT * FROM trail where username = ? AND negative = ?", [username, positive]);
 
@@ -44,6 +46,7 @@ router.post('/add_trail',urlencodedParser, async function(req, res, next) {
     const trailed = sanitize(req.body.trailed);
     const ratio = sanitize(req.body.ratio);
     const positive = sanitize(req.body.positive);
+    const type = sanitize(req.body.type);
 
     if (username && token) {
 
@@ -58,9 +61,9 @@ router.post('/add_trail',urlencodedParser, async function(req, res, next) {
             return res.send({status : "ko"});
         }
 
-        const valid = await utils.sc_valid(username, token);
+        const valid = await utils.valid_login(username, token, type);
 
-        if (valid[0] === true) {
+        if (valid === true) {
 
             let data = await db("SELECT * from trail where username = ? and trailed = ?", [username, trailed]);
 
@@ -84,10 +87,11 @@ router.post('/remove_trail',urlencodedParser, async function(req, res, next) {
 
     const username = sanitize(req.body.username);
     const token = sanitize(req.body.token);
+    const type = sanitize(req.body.type);
     const trailed = sanitize(req.body.trailed);
     const positive = sanitize(req.body.positive);
 
-    if (username && token) {
+    if (username && token && type) {
 
         let trailed_schema = Joi.object().keys({
             username: Joi.string().min(3).max(16).required(),
@@ -99,9 +103,9 @@ router.post('/remove_trail',urlencodedParser, async function(req, res, next) {
             return res.send({status : "ko"});
         }
 
-        const valid = await utils.sc_valid(username, token);
+        const valid = await utils.valid_login(username, token, type);
 
-        if (valid[0] === true) {
+        if (valid === true) {
 
             await db("DELETE FROM trail WHERE username = ? AND trailed = ? AND negative = ?", [username, trailed, positive]);
 
@@ -119,9 +123,10 @@ router.post('/update_threshold',urlencodedParser, async function(req, res, next)
 
     const username = sanitize(req.body.username);
     const token = sanitize(req.body.token);
+    const type = sanitize(req.body.type);
     const threshold = sanitize(req.body.threshold);
 
-    if (username && token) {
+    if (username && token && type) {
 
         let schema = Joi.object().keys({
             threshold: Joi.number().min(0.1).max(100).required(),
@@ -133,9 +138,9 @@ router.post('/update_threshold',urlencodedParser, async function(req, res, next)
             return res.send({status : "ko"});
         }
 
-        const valid = await utils.sc_valid(username, token);
+        const valid = await utils.valid_login(username, token, type);
 
-        if (valid[0] === true) {
+        if (valid === true) {
 
             await db("UPDATE user_data SET threshold = ? WHERE username = ?", [threshold, username]);
 
@@ -154,9 +159,10 @@ router.post('/update_min_payout',urlencodedParser, async function(req, res, next
 
     const username = sanitize(req.body.username);
     const token = sanitize(req.body.token);
+    const type = sanitize(req.body.type);
     const min_payout = sanitize(req.body.min_payout);
 
-    if (username && token) {
+    if (username && token && type) {
 
         let schema = Joi.object().keys({
             min_payout: Joi.number().min(0).required(),
@@ -168,9 +174,9 @@ router.post('/update_min_payout',urlencodedParser, async function(req, res, next
             return res.send({status : "ko"});
         }
 
-        const valid = await utils.sc_valid(username, token);
+        const valid = await utils.valid_login(username, token, type);
 
-        if (valid[0] === true) {
+        if (valid === true) {
 
             await db("UPDATE user_data SET min_payout = ? WHERE username = ?", [min_payout, username]);
 
