@@ -36,6 +36,28 @@ router.post('/get_trail',urlencodedParser, async function(req, res, next) {
     return res.send({status : "ko", data : "no_infos"});
 });
 
+router.post('/get_whitelist',urlencodedParser, async function(req, res, next) {
+
+    const username = sanitize(req.body.username);
+    const token = sanitize(req.body.token);
+    const type = sanitize(req.body.type);
+
+    if (username && token && type) {
+
+        const valid = await utils.valid_login(username, token, type);
+
+        if (valid === true) {
+
+            let data = await db("SELECT * FROM whitelist where username = ?", [username]);
+
+            return res.send({status : "ok", data});
+        } else
+            return res.send({status : "ko"});
+    }
+
+    return res.send({status : "ko", data : "no_infos"});
+});
+
 
 router.post('/add_trail',urlencodedParser, async function(req, res, next) {
 
@@ -85,6 +107,46 @@ router.post('/add_trail',urlencodedParser, async function(req, res, next) {
     return res.send({status : "ko", data : "no_infos"});
 });
 
+router.post('/add_whitelist',urlencodedParser, async function(req, res, next) {
+
+    const username = sanitize(req.body.username);
+    const token = sanitize(req.body.token);
+    const trailed = sanitize(req.body.trailed);
+    const type = sanitize(req.body.type);
+
+    if (username && token && type) {
+
+        let trailed_schema = Joi.object().keys({
+            username: Joi.string().min(3).max(16).required(),
+        });
+
+        let test = Joi.validate({username : trailed}, trailed_schema);
+
+        if (test.error !== null) {
+            return res.send({status : "ko"});
+        }
+
+        const valid = await utils.valid_login(username, token, type);
+
+        if (valid === true) {
+
+            let data = await db("SELECT 1 from whitelist where username = ? and trailed = ?", [username, trailed]);
+
+
+            if (data.length !== 0) {
+                return res.send({status: "ko", error: "already exists"});
+            }
+
+            await db("INSERT INTO whitelist(id, username, trailed) VALUE(NULL, ?, ?)", [username, trailed]);
+
+            return res.send({status : "ok"});
+        } else
+            return res.send({status : "ko"});
+    }
+
+    return res.send({status : "ko", data : "no_infos"});
+});
+
 
 router.post('/remove_trail',urlencodedParser, async function(req, res, next) {
 
@@ -120,6 +182,41 @@ router.post('/remove_trail',urlencodedParser, async function(req, res, next) {
     return res.send({status : "ko", data : "no_infos"});
 });
 
+
+
+
+router.post('/remove_whitelist',urlencodedParser, async function(req, res, next) {
+
+    const username = sanitize(req.body.username);
+    const token = sanitize(req.body.token);
+    const type = sanitize(req.body.type);
+    const trailed = sanitize(req.body.trailed);
+
+    if (username && token && type) {
+
+        let trailed_schema = Joi.object().keys({
+            username: Joi.string().min(3).max(16).required(),
+        });
+
+        let test = Joi.validate({username : trailed}, trailed_schema);
+
+        if (test.error !== null) {
+            return res.send({status : "ko"});
+        }
+
+        const valid = await utils.valid_login(username, token, type);
+
+        if (valid === true) {
+
+            await db("DELETE FROM whitelist WHERE username = ? AND trailed = ?", [username, trailed]);
+
+            return res.send({status : "ok"});
+        } else
+            return res.send({status : "ko"});
+    }
+
+    return res.send({status : "ko", data : "no_infos"});
+});
 
 
 router.post('/update_threshold',urlencodedParser, async function(req, res, next) {
