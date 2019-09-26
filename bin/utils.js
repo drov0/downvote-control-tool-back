@@ -75,7 +75,7 @@ function valid_login(username, token, type)
             let user = await db("SELECT * FROM user_login WHERE username = ? AND token = ?", [username, token])
             valid = user.length === 1;
         } else {
-            valid = (await utils.sc_valid(username, token))[0];
+            valid = (await sc_valid(username, token))[0];
         }
 
         return resolve(valid);
