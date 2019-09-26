@@ -20,15 +20,13 @@ router.post('/get_trail',urlencodedParser, async function(req, res, next) {
     const token = sanitize(req.body.token);
     const type = sanitize(req.body.type);
 
-    const positive = sanitize(req.body.positive);
-
-    if (username && token && type && positive) {
+    if (username && token && type) {
 
         const valid = await utils.valid_login(username, token, type);
 
         if (valid === true) {
 
-            let data = await db("SELECT * FROM trail where username = ? AND negative = ?", [username, positive]);
+            let data = await db("SELECT * FROM trail where username = ?", [username]);
 
             return res.send({status : "ok", data});
         } else
@@ -45,7 +43,7 @@ router.post('/add_trail',urlencodedParser, async function(req, res, next) {
     const token = sanitize(req.body.token);
     const trailed = sanitize(req.body.trailed);
     const ratio = sanitize(req.body.ratio);
-    const positive = sanitize(req.body.positive);
+    const trail_type = sanitize(req.body.trail_type);
     const type = sanitize(req.body.type);
 
     if (username && token) {
@@ -65,14 +63,19 @@ router.post('/add_trail',urlencodedParser, async function(req, res, next) {
 
         if (valid === true) {
 
-            let data = await db("SELECT * from trail where username = ? and trailed = ?", [username, trailed]);
+            let data;
 
-            if (data.length !== 0)
-            {
-                return res.send({status : "ko", error : "already exists"});
+            if (trail_type === -1 || trail_type === 1)
+                data = await db("SELECT 1 from trail where username = ? and trailed = ? and type IN (-1, 1)", [username, trailed]);
+             else
+                data = await db("SELECT 1 from trail where username = ? and trailed = ? and type = ?", [username, trailed, trail_type]);
+
+
+            if (data.length !== 0) {
+                return res.send({status: "ko", error: "already exists"});
             }
 
-            await db("INSERT INTO trail(id, username, trailed, ratio, negative) VALUE(NULL, ?, ?, ?, ?)", [username, trailed, ratio, positive]);
+            await db("INSERT INTO trail(id, username, trailed, ratio, type) VALUE(NULL, ?, ?, ?, ?)", [username, trailed, ratio, trail_type]);
 
             return res.send({status : "ok"});
         } else
@@ -89,7 +92,7 @@ router.post('/remove_trail',urlencodedParser, async function(req, res, next) {
     const token = sanitize(req.body.token);
     const type = sanitize(req.body.type);
     const trailed = sanitize(req.body.trailed);
-    const positive = sanitize(req.body.positive);
+    const trail_type = sanitize(req.body.trail_type);
 
     if (username && token && type) {
 
@@ -107,7 +110,7 @@ router.post('/remove_trail',urlencodedParser, async function(req, res, next) {
 
         if (valid === true) {
 
-            await db("DELETE FROM trail WHERE username = ? AND trailed = ? AND negative = ?", [username, trailed, positive]);
+            await db("DELETE FROM trail WHERE username = ? AND trailed = ? AND type = ?", [username, trailed, trail_type]);
 
             return res.send({status : "ok"});
         } else
