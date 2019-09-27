@@ -15,7 +15,10 @@ In in put data in this format :
 ```
 DB_USERNAME=username
 DB_PASSWORD=password
+ENCRYPTION_PW=encryptionpassword
 ```
+
+The encryption password should be 32 char long
 
 then edit the file `config.js` in `/bin` and change the `account_username` field to the accounts you have chosen to hold the posting authorities.
 

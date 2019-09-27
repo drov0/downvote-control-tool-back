@@ -1,4 +1,5 @@
 const sc2 = require('sc2-sdk');
+const db = require("../bin/config").db;
 
 function sc_valid(username, access_token)
 {
@@ -64,9 +65,28 @@ function wait(time)
 }
 
 
+function valid_login(username, token, type)
+{
+    return new Promise(async resolve => {
+
+        let valid;
+
+        if (type === "keychain") {
+            let user = await db("SELECT * FROM user_login WHERE username = ? AND token = ?", [username, token])
+            valid = user.length === 1;
+        } else {
+            valid = (await sc_valid(username, token))[0];
+        }
+
+        return resolve(valid);
+    });
+}
+
+
 
 module.exports = {
     sc_valid,
     repLog10,
     wait,
+    valid_login
 };
