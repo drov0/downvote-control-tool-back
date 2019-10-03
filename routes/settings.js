@@ -225,11 +225,12 @@ router.post('/update_threshold',urlencodedParser, async function(req, res, next)
     const token = sanitize(req.body.token);
     const type = sanitize(req.body.type);
     const threshold = sanitize(req.body.threshold);
+    const threshold_type = sanitize(req.body.threshold_type);
 
     if (username && token && type) {
 
         let schema = Joi.object().keys({
-            threshold: Joi.number().min(0.1).max(100).required(),
+            threshold: Joi.number().min(0).max(100).required(),
         });
 
         let test = Joi.validate({threshold : threshold}, schema);
@@ -242,7 +243,10 @@ router.post('/update_threshold',urlencodedParser, async function(req, res, next)
 
         if (valid === true) {
 
-            await db("UPDATE user_data SET threshold = ? WHERE username = ?", [threshold, username]);
+            if (threshold_type === "dv")
+                await db("UPDATE user_data SET dv_threshold = ? WHERE username = ?", [threshold, username]);
+            else
+                await db("UPDATE user_data SET vp_threshold = ? WHERE username = ?", [threshold, username]);
 
             return res.send({status : "ok"});
         } else
