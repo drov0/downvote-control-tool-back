@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Sep 27, 2019 at 12:10 AM
+-- Generation Time: Oct 13, 2019 at 12:20 PM
 -- Server version: 5.7.27-0ubuntu0.18.04.1
 -- PHP Version: 7.2.19-0ubuntu0.18.04.2
 
@@ -21,6 +21,35 @@ SET time_zone = "+00:00";
 --
 -- Database: `downvote_control_tool`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `executed_votes`
+--
+
+CREATE TABLE `executed_votes` (
+  `id` int(11) NOT NULL,
+  `username` varchar(16) NOT NULL,
+  `type` tinyint(4) NOT NULL,
+  `author` varchar(16) NOT NULL,
+  `permlink` varchar(256) NOT NULL,
+  `percentage` smallint(6) NOT NULL,
+  `reason` json NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `hitlist`
+--
+
+CREATE TABLE `hitlist` (
+  `username` varchar(16) NOT NULL,
+  `author` varchar(16) NOT NULL,
+  `percent` float NOT NULL,
+  `min_payout` float NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -44,7 +73,8 @@ CREATE TABLE `trail` (
 
 CREATE TABLE `user_data` (
   `username` varchar(16) NOT NULL,
-  `threshold` float NOT NULL,
+  `dv_threshold` float NOT NULL,
+  `vp_threshold` float NOT NULL DEFAULT '95',
   `min_payout` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -78,6 +108,18 @@ CREATE TABLE `whitelist` (
 --
 
 --
+-- Indexes for table `executed_votes`
+--
+ALTER TABLE `executed_votes`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `hitlist`
+--
+ALTER TABLE `hitlist`
+  ADD PRIMARY KEY (`username`,`author`);
+
+--
 -- Indexes for table `trail`
 --
 ALTER TABLE `trail`
@@ -106,16 +148,22 @@ ALTER TABLE `whitelist`
 --
 
 --
+-- AUTO_INCREMENT for table `executed_votes`
+--
+ALTER TABLE `executed_votes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=0;
+
+--
 -- AUTO_INCREMENT for table `trail`
 --
 ALTER TABLE `trail`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=0;
 
 --
 -- AUTO_INCREMENT for table `whitelist`
 --
 ALTER TABLE `whitelist`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=0;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

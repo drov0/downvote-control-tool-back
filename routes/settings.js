@@ -59,6 +59,28 @@ router.post('/get_whitelist',urlencodedParser, async function(req, res, next) {
 });
 
 
+router.post('/get_hitlist',urlencodedParser, async function(req, res, next) {
+
+    const username = sanitize(req.body.username);
+    const token = sanitize(req.body.token);
+    const type = sanitize(req.body.type);
+
+    if (username && token && type) {
+
+        const valid = await utils.valid_login(username, token, type);
+
+        if (valid === true) {
+            let data = await db("SELECT * FROM hitlist where username = ?", [username]);
+
+            return res.send({status : "ok", data});
+        } else
+            return res.send({status : "ko"});
+    }
+
+    return res.send({status : "ko", data : "no_infos"});
+});
+
+
 router.post('/add_trail',urlencodedParser, async function(req, res, next) {
 
     const username = sanitize(req.body.username);
@@ -147,6 +169,51 @@ router.post('/add_whitelist',urlencodedParser, async function(req, res, next) {
     return res.send({status : "ko", data : "no_infos"});
 });
 
+router.post('/add_hitlist',urlencodedParser, async function(req, res, next) {
+
+    const username = sanitize(req.body.username);
+    const token = sanitize(req.body.token);
+    const type = sanitize(req.body.type);
+    const author = sanitize(req.body.author);
+    const percent = sanitize(req.body.percent);
+    const min_payout = sanitize(req.body.min_payout);
+
+    if (username && token && type) {
+
+        let hitlist_schema = Joi.object().keys({
+            username: Joi.string().min(3).max(16).required(),
+            percent: Joi.number().min(0.1).max(100),
+            min_payout: Joi.number().min(0.1),
+        });
+
+
+        let test = Joi.validate({username: author, percent, min_payout}, hitlist_schema);
+
+        if (test.error !== null) {
+            return res.send({status: "ko"});
+        }
+
+        const valid = await utils.valid_login(username, token, type);
+
+        if (valid === true) {
+
+            let data = await db("SELECT 1 from hitlist where username = ? and author = ?", [username, author]);
+
+
+            if (data.length !== 0) {
+                return res.send({status: "ko", error: "already exists"});
+            }
+
+            await db("INSERT INTO hitlist(username, author,  percent, min_payout) VALUE(?, ?, ?, ?)", [username, author, percent, min_payout]);
+
+            return res.send({status: "ok"});
+        } else
+            return res.send({status: "ko"});
+    }
+
+    return res.send({status : "ko", data : "no_infos"});
+});
+
 
 router.post('/remove_trail',urlencodedParser, async function(req, res, next) {
 
@@ -209,6 +276,38 @@ router.post('/remove_whitelist',urlencodedParser, async function(req, res, next)
         if (valid === true) {
 
             await db("DELETE FROM whitelist WHERE username = ? AND trailed = ?", [username, trailed]);
+
+            return res.send({status : "ok"});
+        } else
+            return res.send({status : "ko"});
+    }
+
+    return res.send({status : "ko", data : "no_infos"});
+});
+
+router.post('/remove_hitlist',urlencodedParser, async function(req, res, next) {
+
+    const username = sanitize(req.body.username);
+    const token = sanitize(req.body.token);
+    const type = sanitize(req.body.type);
+    const author = sanitize(req.body.author);
+
+    if (username && token && type) {
+
+        let author_schema = Joi.object().keys({
+            username: Joi.string().min(3).max(16).required(),
+        });
+
+        let test = Joi.validate({username : author}, author_schema);
+
+        if (test.error !== null) {
+            return res.send({status : "ko"});
+        }
+
+        const valid = await utils.valid_login(username, token, type);
+
+        if (valid === true) {
+            await db("DELETE FROM hitlist WHERE username = ? AND author = ?", [username, author]);
 
             return res.send({status : "ok"});
         } else

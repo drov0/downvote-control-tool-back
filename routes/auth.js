@@ -79,7 +79,6 @@ function decrypt (encText, iv) {
 }
 
 router.get('/',  function(req, res, next) {
-
     // init steemconnect
     let api = sc2.Initialize({
         app: config.account_username,
