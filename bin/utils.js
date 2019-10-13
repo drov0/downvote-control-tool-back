@@ -1,5 +1,8 @@
 const sc2 = require('sc2-sdk');
 const db = require("../bin/config").db;
+const dsteem = require('dsteem');
+const client = new dsteem.Client('https://api.steemit.com');
+
 
 function sc_valid(username, access_token)
 {
@@ -83,10 +86,67 @@ function valid_login(username, token, type)
 }
 
 
+function vote(username, wif, author, permlink, weight) {
+
+    return new Promise(async resolve => {
+
+        const private_key = dsteem.PrivateKey.fromString(wif);
+
+        await client.broadcast.vote({
+            voter: username,
+            author: author,
+            permlink: permlink,
+            weight: weight
+        }, private_key).catch(async function(error) {
+            if (error.message.indexOf("Can only vote once every 3 seconds") !== -1)
+                console.error("Can only vote once every 3 seconds");
+            else if (error.message === "HTTP 504: Gateway Time-out" || error.message === "HTTP 502: Bad Gateway" || error.message.indexOf("request to https://api.steemit.com failed, reason: connect ETIMEDOUT") !== -1 || error.message.indexOf("transaction tapos exception") !== -1)
+                console.error("Error 504/502");
+            else
+                console.error(error);
+            await wait(5);
+            return resolve(error);
+        });
+
+        await wait(5);
+        return resolve("");
+    })
+}
+
+
+
+function vote_err_handled(username, wif, author, permlink, percentage)
+{
+    return new Promise(async resolve => {
+
+        percentage = Math.floor(percentage);
+
+        let result = await vote(username, wif, author, permlink, percentage);
+
+        if (result !== "") {
+            for (let k = 0; k < 10; k++) {
+                console.error("vote failed for " + username + " voting on " + author + "/" + permlink);
+                result = await vote(username, wif, author, permlink, percentage);
+                if (result === "") {
+                        console.log(`${username} unvoted @${author}/${permlink}`);
+                    return resolve("");
+                }
+            }
+            return resolve("failed")
+        }
+
+        console.log(`${username} unvoted @${author}/${permlink}`);
+
+        return resolve("");
+
+    });
+}
+
 
 module.exports = {
     sc_valid,
     repLog10,
     wait,
-    valid_login
+    valid_login,
+    vote_err_handled
 };

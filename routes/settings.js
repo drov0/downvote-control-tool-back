@@ -80,6 +80,27 @@ router.post('/get_hitlist',urlencodedParser, async function(req, res, next) {
     return res.send({status : "ko", data : "no_infos"});
 });
 
+router.post('/get_vote_history',urlencodedParser, async function(req, res, next) {
+
+    const username = sanitize(req.body.username);
+    const token = sanitize(req.body.token);
+    const type = sanitize(req.body.type);
+
+    if (username && token && type) {
+
+        const valid = await utils.valid_login(username, token, type);
+
+        if (valid === true) {
+            let data = await db("SELECT * FROM executed_votes where username = ? ORDER BY id DESC", [username]);
+
+            return res.send({status : "ok", data});
+        } else
+            return res.send({status : "ko"});
+    }
+
+    return res.send({status : "ko", data : "no_infos"});
+});
+
 
 router.post('/add_trail',urlencodedParser, async function(req, res, next) {
 
@@ -348,6 +369,38 @@ router.post('/update_threshold',urlencodedParser, async function(req, res, next)
                 await db("UPDATE user_data SET vp_threshold = ? WHERE username = ?", [threshold, username]);
 
             return res.send({status : "ok"});
+        } else
+            return res.send({status : "ko"});
+    }
+
+    return res.send({status : "ko", data : "no_infos"});
+});
+
+
+
+
+router.post('/unvote',urlencodedParser, async function(req, res, next) {
+
+    const username = sanitize(req.body.username);
+    const token = sanitize(req.body.token);
+    const type = sanitize(req.body.type);
+    const author = sanitize(req.body.author);
+    const permlink = sanitize(req.body.permlink);
+
+    if (username && token && type) {
+        const valid = await utils.valid_login(username, token, type);
+
+        if (valid === true) {
+
+            let result = await utils.vote_err_handled(username, process.env.WIF, author, permlink, 0);
+            if (result === "") {
+                await db("DELETE FROM executed_votes WHERE username = ? AND author = ? AND permlink = ?", [username, author, permlink]);
+
+                return res.send({status: "ok"});
+            } else
+            {
+                return res.send({status: "ko", data : "Error when unvoting, please try again"});
+            }
         } else
             return res.send({status : "ko"});
     }
