@@ -204,7 +204,7 @@ router.post('/add_hitlist',urlencodedParser, async function(req, res, next) {
         let hitlist_schema = Joi.object().keys({
             username: Joi.string().min(3).max(16).required(),
             percent: Joi.number().min(0.1).max(100),
-            min_payout: Joi.number().min(0.1),
+            min_payout: Joi.number().min(0.01),
         });
 
 
