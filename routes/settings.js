@@ -270,9 +270,6 @@ router.post('/remove_trail',urlencodedParser, async function(req, res, next) {
     return res.send({status : "ko", data : "no_infos"});
 });
 
-
-
-
 router.post('/remove_whitelist',urlencodedParser, async function(req, res, next) {
 
     const username = sanitize(req.body.username);
@@ -338,35 +335,41 @@ router.post('/remove_hitlist',urlencodedParser, async function(req, res, next) {
     return res.send({status : "ko", data : "no_infos"});
 });
 
-
-router.post('/update_threshold',urlencodedParser, async function(req, res, next) {
+router.post('/update_user_settings',urlencodedParser, async function(req, res, next) {
 
     const username = sanitize(req.body.username);
     const token = sanitize(req.body.token);
     const type = sanitize(req.body.type);
-    const threshold = sanitize(req.body.threshold);
-    const threshold_type = sanitize(req.body.threshold_type);
+    let settings = sanitize(req.body.settings);
 
-    if (username && token && type) {
 
-        let schema = Joi.object().keys({
-            threshold: Joi.number().min(0).max(100).required(),
-        });
+    const valid = await utils.valid_login(username, token, type);
 
-        let test = Joi.validate({threshold : threshold}, schema);
+    if (valid === true) {
 
-        if (test.error !== null) {
+        try {
+            settings = JSON.parse(settings)
+        } catch (e) {
+            console.error("Can't parse settings from user "+username+" settings : "+settings);
             return res.send({status : "ko"});
         }
 
-        const valid = await utils.valid_login(username, token, type);
+        if (username && token && type) {
 
-        if (valid === true) {
+            let schema = Joi.object().keys({
+                dv_threshold: Joi.number().min(0).max(100).required(),
+                vp_threshold: Joi.number().min(0).max(100).required(),
+                min_payout: Joi.number().min(0).required(),
+            });
 
-            if (threshold_type === "dv")
-                await db("UPDATE user_data SET dv_threshold = ? WHERE username = ?", [threshold, username]);
-            else
-                await db("UPDATE user_data SET vp_threshold = ? WHERE username = ?", [threshold, username]);
+            let test = Joi.validate(settings, schema);
+
+            if (test.error !== null) {
+                return res.send({status : "ko"});
+            }
+
+            await db("UPDATE user_data SET dv_threshold = ?, vp_threshold = ?, min_payout = ? WHERE username = ?",
+                [settings.dv_threshold, settings.vp_threshold ,settings.min_payout, username]);
 
             return res.send({status : "ok"});
         } else
@@ -375,9 +378,6 @@ router.post('/update_threshold',urlencodedParser, async function(req, res, next)
 
     return res.send({status : "ko", data : "no_infos"});
 });
-
-
-
 
 router.post('/unvote',urlencodedParser, async function(req, res, next) {
 
@@ -407,43 +407,6 @@ router.post('/unvote',urlencodedParser, async function(req, res, next) {
 
     return res.send({status : "ko", data : "no_infos"});
 });
-
-
-
-
-router.post('/update_min_payout',urlencodedParser, async function(req, res, next) {
-
-    const username = sanitize(req.body.username);
-    const token = sanitize(req.body.token);
-    const type = sanitize(req.body.type);
-    const min_payout = sanitize(req.body.min_payout);
-
-    if (username && token && type) {
-
-        let schema = Joi.object().keys({
-            min_payout: Joi.number().min(0).required(),
-        });
-
-        let test = Joi.validate({min_payout : min_payout}, schema);
-
-        if (test.error !== null) {
-            return res.send({status : "ko"});
-        }
-
-        const valid = await utils.valid_login(username, token, type);
-
-        if (valid === true) {
-
-            await db("UPDATE user_data SET min_payout = ? WHERE username = ?", [min_payout, username]);
-
-            return res.send({status : "ok"});
-        } else
-            return res.send({status : "ko"});
-    }
-
-    return res.send({status : "ko", data : "no_infos"});
-});
-
 
 
 
