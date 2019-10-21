@@ -1,21 +1,23 @@
 const utils = require("../bin/utils");
+const db = require("../bin/config").db;
 
 var express = require('express');
-
 var router = express.Router();
-
 const dsteem = require('dsteem');
-const client = new dsteem.Client('https://api.steemit.com');
-
-
 const bodyParser = require('body-parser');
-const urlencodedParser = bodyParser.urlencoded({limit: '500kb', extended: true});
 const sanitize = require("xss");
-const db = require("../bin/config").db;
 const Joi = require('joi');
 
-router.post('/get_trail',urlencodedParser, async function(req, res, next) {
+const urlencodedParser = bodyParser.urlencoded({limit: '500kb', extended: true});
+const client = new dsteem.Client('https://api.steemit.com');
 
+/**
+    Gets the various trails for an user, includes trail downvotes, counter downvotes and counter upvotes
+    username : steem username
+    token : steemconnect or keychain token
+    type : steemconnect or keychain
+ */
+router.post('/get_trail',urlencodedParser, async function(req, res, next) {
     const username = sanitize(req.body.username);
     const token = sanitize(req.body.token);
     const type = sanitize(req.body.type);
@@ -23,9 +25,7 @@ router.post('/get_trail',urlencodedParser, async function(req, res, next) {
     if (username && token && type) {
 
         const valid = await utils.valid_login(username, token, type);
-
         if (valid === true) {
-
             let data = await db("SELECT * FROM trail where username = ?", [username]);
 
             return res.send({status : "ok", data});
@@ -36,6 +36,12 @@ router.post('/get_trail',urlencodedParser, async function(req, res, next) {
     return res.send({status : "ko", data : "no_infos"});
 });
 
+/**
+    Gets the whitelist for an user
+    username : steem username
+    token : steemconnect or keychain token
+    type : steemconnect or keychain
+ */
 router.post('/get_whitelist',urlencodedParser, async function(req, res, next) {
 
     const username = sanitize(req.body.username);
@@ -45,9 +51,7 @@ router.post('/get_whitelist',urlencodedParser, async function(req, res, next) {
     if (username && token && type) {
 
         const valid = await utils.valid_login(username, token, type);
-
         if (valid === true) {
-
             let data = await db("SELECT * FROM whitelist where username = ?", [username]);
 
             return res.send({status : "ok", data});
@@ -58,9 +62,13 @@ router.post('/get_whitelist',urlencodedParser, async function(req, res, next) {
     return res.send({status : "ko", data : "no_infos"});
 });
 
-
+/**
+    Gets the hitlist for an user
+    username : steem username
+    token : steemconnect or keychain token
+    type : steemconnect or keychain
+ */
 router.post('/get_hitlist',urlencodedParser, async function(req, res, next) {
-
     const username = sanitize(req.body.username);
     const token = sanitize(req.body.token);
     const type = sanitize(req.body.type);
@@ -68,7 +76,6 @@ router.post('/get_hitlist',urlencodedParser, async function(req, res, next) {
     if (username && token && type) {
 
         const valid = await utils.valid_login(username, token, type);
-
         if (valid === true) {
             let data = await db("SELECT * FROM hitlist where username = ?", [username]);
 
@@ -76,10 +83,15 @@ router.post('/get_hitlist',urlencodedParser, async function(req, res, next) {
         } else
             return res.send({status : "ko"});
     }
-
     return res.send({status : "ko", data : "no_infos"});
 });
 
+/**
+    Gets the vote history for an user
+    username : steem username
+    token : steemconnect or keychain token
+    type : steemconnect or keychain
+ */
 router.post('/get_vote_history',urlencodedParser, async function(req, res, next) {
 
     const username = sanitize(req.body.username);
@@ -89,7 +101,6 @@ router.post('/get_vote_history',urlencodedParser, async function(req, res, next)
     if (username && token && type) {
 
         const valid = await utils.valid_login(username, token, type);
-
         if (valid === true) {
             let data = await db("SELECT * FROM executed_votes where username = ? ORDER BY id DESC", [username]);
 
@@ -101,15 +112,24 @@ router.post('/get_vote_history',urlencodedParser, async function(req, res, next)
     return res.send({status : "ko", data : "no_infos"});
 });
 
-
+/**
+    adds a trail to an user
+    username : steem username
+    token : steemconnect or keychain token
+    type : steemconnect or keychain
+    trailed : steem username of the trailed user
+    ratio : ratio for the vote
+    trail_type : type of the trail (trail downvotes, counter upvotes, counter downvotes)
+ */
 router.post('/add_trail',urlencodedParser, async function(req, res, next) {
 
     const username = sanitize(req.body.username);
     const token = sanitize(req.body.token);
+    const type = sanitize(req.body.type);
+
     const trailed = sanitize(req.body.trailed);
     const ratio = sanitize(req.body.ratio);
     const trail_type = sanitize(req.body.trail_type);
-    const type = sanitize(req.body.type);
 
     if (username && token) {
 
@@ -135,7 +155,6 @@ router.post('/add_trail',urlencodedParser, async function(req, res, next) {
              else
                 data = await db("SELECT 1 from trail where username = ? and trailed = ? and type = ?", [username, trailed, trail_type]);
 
-
             if (data.length !== 0) {
                 return res.send({status: "ko", error: "already exists"});
             }
@@ -150,6 +169,13 @@ router.post('/add_trail',urlencodedParser, async function(req, res, next) {
     return res.send({status : "ko", data : "no_infos"});
 });
 
+/**
+    adds a whitelisted user to an user
+    @param username - steem username
+    @param token - steemconnect or keychain token
+    @param type - steemconnect or keychain
+    @param trailed - steem username of the trailed user
+ */
 router.post('/add_whitelist',urlencodedParser, async function(req, res, next) {
 
     const username = sanitize(req.body.username);
@@ -174,8 +200,6 @@ router.post('/add_whitelist',urlencodedParser, async function(req, res, next) {
         if (valid === true) {
 
             let data = await db("SELECT 1 from whitelist where username = ? and trailed = ?", [username, trailed]);
-
-
             if (data.length !== 0) {
                 return res.send({status: "ko", error: "already exists"});
             }
@@ -190,11 +214,20 @@ router.post('/add_whitelist',urlencodedParser, async function(req, res, next) {
     return res.send({status : "ko", data : "no_infos"});
 });
 
+/**
+    adds an author to the hitlist of an user
+    username : steem username
+    token : steemconnect or keychain token
+    type : steemconnect or keychain
+    author  : steem username of the author
+    percent  :
+ */
 router.post('/add_hitlist',urlencodedParser, async function(req, res, next) {
 
     const username = sanitize(req.body.username);
     const token = sanitize(req.body.token);
     const type = sanitize(req.body.type);
+
     const author = sanitize(req.body.author);
     const percent = sanitize(req.body.percent);
     const min_payout = sanitize(req.body.min_payout);
@@ -341,7 +374,6 @@ router.post('/update_user_settings',urlencodedParser, async function(req, res, n
     const token = sanitize(req.body.token);
     const type = sanitize(req.body.type);
     let settings = sanitize(req.body.settings);
-
 
     const valid = await utils.valid_login(username, token, type);
 
