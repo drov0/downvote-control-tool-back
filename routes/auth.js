@@ -17,6 +17,10 @@ const sanitize = require("xss");
 const encryptionHelper = require("../bin/encryptionhelper.js");
 const algorithm = encryptionHelper.CIPHERS.AES_256;
 
+/**
+ Creates a pseudo-random string
+ @nb  - length of the pseudo random string wanted
+ */
 function makeid(nb) {
     let text = "";
     const possible = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -28,6 +32,10 @@ function makeid(nb) {
 }
 
 
+/**
+ Gets the key and iv for aes encryption
+ @iv - (optional) iv if we already have one, otherwise will be generated
+ */
 function get_encryption_data(iv)
 {
     return new Promise(async resolve => {
@@ -44,6 +52,11 @@ function get_encryption_data(iv)
     });
 }
 
+/**
+ Encrypts text
+ @text - text to encrypt
+ @initialisation_vector - (optional) iv if we already have one, otherwise will be generated
+ */
 function encrypt (text, initialisation_vector) {
     return new Promise(async resolve => {
         let data;
@@ -69,6 +82,11 @@ function encrypt (text, initialisation_vector) {
     });
 }
 
+/**
+ decryptsEncrypts text
+ @encText - Encrypted text to decrypt
+ @initialisation_vector - (optional) iv if we already have one, otherwise will be generated
+ */
 function decrypt (encText, iv) {
     return new Promise(async resolve => {
         const data = await get_encryption_data(iv);
@@ -78,6 +96,9 @@ function decrypt (encText, iv) {
     });
 }
 
+/**
+ steemconnect login, redirects to the steemconnect domain for auth
+ */
 router.get('/',  function(req, res, next) {
     // init steemconnect
     let api = sc2.Initialize({
@@ -91,6 +112,10 @@ router.get('/',  function(req, res, next) {
     return res.redirect(301, link);
 });
 
+/**
+ Fetches the encrypted keychain memo used for checking auth
+ @username - username of the user wanting to log in
+ */
 router.post('/keychain/fetch_memo', async function(req, res, next) {
     const username = sanitize(req.body.username);
 
@@ -126,7 +151,10 @@ router.post('/keychain/fetch_memo', async function(req, res, next) {
     }
 });
 
-
+/**
+ Used for returning login,
+ @username - username of the user wanting to log in
+ */
 router.post('/keychain/login', async function(req, res, next) {
     const username = sanitize(req.body.username);
     let encrypted_username = sanitize(req.body.encrypted_username);
