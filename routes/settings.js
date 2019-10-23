@@ -216,9 +216,9 @@ router.post('/add_whitelist',urlencodedParser, async function(req, res, next) {
 
 /**
     adds an author to the hitlist of an user
- @username - steem username
- @token - steemconnect or keychain token
- @type - steemconnect or keychain
+    @username - steem username
+    @token - steemconnect or keychain token
+    @type - steemconnect or keychain
     @author  - steem username of the author
     @percent  - percentage to hit the author with
  */
@@ -443,6 +443,7 @@ router.post('/update_user_settings',urlencodedParser, async function(req, res, n
  Unvote, used to undo executed votes
  @username - steem username
  @token - steemconnect or keychain token
+ @type - steemconnect or keychain
  @author - author of the post to unvote
  @permlink  - permlink of the post to unvote
  */

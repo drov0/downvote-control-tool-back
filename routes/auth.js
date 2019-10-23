@@ -154,6 +154,7 @@ router.post('/keychain/fetch_memo', async function(req, res, next) {
 /**
  Used for returning login,
  @username - username of the user wanting to log in
+ @encrypted_username - username of the user encrypted
  */
 router.post('/keychain/login', async function(req, res, next) {
     const username = sanitize(req.body.username);
@@ -200,7 +201,12 @@ router.post('/keychain/login', async function(req, res, next) {
 });
 
 
-
+/**
+ Used for returning users, gets all the data of an user
+ @username - steem username
+ @token - steemconnect or keychain token
+ @type - steemconnect or keychain
+ */
 router.post('/user',urlencodedParser, async function(req, res, next) {
 
     const username = sanitize(req.body.username);
@@ -226,7 +232,11 @@ router.post('/user',urlencodedParser, async function(req, res, next) {
 });
 
 
-
+/**
+ Callback for steemconnect login
+ @username - steem username
+ @access_token - steemconnect token
+ */
 router.get('/conf',async function(req, res, next) {
 
     const username = sanitize(req.query.username);
@@ -264,7 +274,12 @@ router.get('/conf',async function(req, res, next) {
 });
 
 
-
+/**
+ logout
+ @username - steem username
+ @token - steemconnect or keychain token
+ @type - steemconnect or keychain
+ */
 router.post('/logout',urlencodedParser, async function(req, res, next) {
 
     const username = sanitize(req.body.username);
@@ -297,7 +312,5 @@ router.post('/logout',urlencodedParser, async function(req, res, next) {
         }
     }
 });
-
-
 
 module.exports = router;
