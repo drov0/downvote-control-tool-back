@@ -182,14 +182,16 @@ router.post('/keychain/login', async function(req, res, next) {
                 let data = await db("SELECT * FROM user_data WHERE username = ?", [username]);
 
                 if (data.length === 0) {
-                    await db("INSERT INTO user_data(username, dv_threshold, vp_threshold, min_payout) VALUES(?,80, 95, 0)", [username]);
+                    await db("INSERT INTO user_data(username, dv_threshold, vp_threshold, min_payout, revote) VALUES(?,80, 95, 0, 0)", [username]);
                     account.vp_threshold = 95;
                     account.dv_threshold = 80;
                     account.min_payout = 0;
+                    account.revote = false;
                 } else {
                     account.vp_threshold = data[0].vp_threshold;
                     account.dv_threshold = data[0].dv_threshold;
                     account.min_payout = data[0].min_payout;
+                    account.revote = false
                 }
 
                 return res.send({status: "ok", account});
@@ -223,7 +225,7 @@ router.post('/user',urlencodedParser, async function(req, res, next) {
 
             data = data[0];
 
-            return res.send({status : "ok", dv_threshold : data.dv_threshold, vp_threshold : data.vp_threshold, min_payout : data.min_payout});
+            return res.send({status : "ok", dv_threshold : data.dv_threshold, vp_threshold : data.vp_threshold, min_payout : data.min_payout, revote : data.revote === 1});
         } else
             return res.send({status : "ko"});
     }
@@ -255,14 +257,16 @@ router.get('/conf',async function(req, res, next) {
             let data = await db("SELECT * FROM user_data WHERE username = ?", [username]);
 
             if (data.length === 0) {
-                await db("INSERT INTO user_data(username, dv_threshold, vp_threshold, min_payout) VALUES(?,80, 95, 0)", [username]);
+                await db("INSERT INTO user_data(username, dv_threshold, vp_threshold, min_payout, revote) VALUES(?,80, 95, 0, 0)", [username]);
                 account.vp_threshold = 95;
                 account.dv_threshold = 80;
                 account.min_payout = 0;
+                account.revote = false;
             } else {
                 account.vp_threshold = data[0].vp_threshold;
                 account.dv_threshold = data[0].dv_threshold;
                 account.min_payout = data[0].min_payout;
+                account.revote = false;
             }
 
             account.token = access_token;

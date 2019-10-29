@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Oct 13, 2019 at 12:20 PM
+-- Generation Time: Oct 29, 2019 at 01:02 AM
 -- Server version: 5.7.27-0ubuntu0.18.04.1
 -- PHP Version: 7.2.19-0ubuntu0.18.04.2
 
@@ -35,6 +35,7 @@ CREATE TABLE `executed_votes` (
   `author` varchar(16) NOT NULL,
   `permlink` varchar(256) NOT NULL,
   `percentage` smallint(6) NOT NULL,
+  `date` int(11) DEFAULT NULL,
   `reason` json NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -75,7 +76,8 @@ CREATE TABLE `user_data` (
   `username` varchar(16) NOT NULL,
   `dv_threshold` float NOT NULL,
   `vp_threshold` float NOT NULL DEFAULT '95',
-  `min_payout` int(11) NOT NULL
+  `min_payout` int(11) NOT NULL,
+  `revote` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -151,19 +153,19 @@ ALTER TABLE `whitelist`
 -- AUTO_INCREMENT for table `executed_votes`
 --
 ALTER TABLE `executed_votes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=0;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5550;
 
 --
 -- AUTO_INCREMENT for table `trail`
 --
 ALTER TABLE `trail`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=0;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=350;
 
 --
 -- AUTO_INCREMENT for table `whitelist`
 --
 ALTER TABLE `whitelist`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=0;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

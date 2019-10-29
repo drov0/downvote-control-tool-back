@@ -420,6 +420,7 @@ router.post('/update_user_settings',urlencodedParser, async function(req, res, n
                 dv_threshold: Joi.number().min(0).max(100).required(),
                 vp_threshold: Joi.number().min(0).max(100).required(),
                 min_payout: Joi.number().min(0).required(),
+                revote: Joi.boolean().required(),
             });
 
             let test = Joi.validate(settings, schema);
@@ -428,8 +429,8 @@ router.post('/update_user_settings',urlencodedParser, async function(req, res, n
                 return res.send({status : "ko"});
             }
 
-            await db("UPDATE user_data SET dv_threshold = ?, vp_threshold = ?, min_payout = ? WHERE username = ?",
-                [settings.dv_threshold, settings.vp_threshold ,settings.min_payout, username]);
+            await db("UPDATE user_data SET dv_threshold = ?, vp_threshold = ?, min_payout = ?, revote = ? WHERE username = ?",
+                [settings.dv_threshold, settings.vp_threshold ,settings.min_payout, settings.revote, username]);
 
             return res.send({status : "ok"});
         } else
