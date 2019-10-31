@@ -63,6 +63,32 @@ router.post('/get_whitelist',urlencodedParser, async function(req, res, next) {
 });
 
 /**
+ Gets the counter downvote blacklist for an user
+ @username - steem username
+ @token - steemconnect or keychain token
+ @type - steemconnect or keychain
+ */
+router.post('/get_counter_dv_blacklist',urlencodedParser, async function(req, res, next) {
+
+    const username = sanitize(req.body.username);
+    const token = sanitize(req.body.token);
+    const type = sanitize(req.body.type);
+
+    if (username && token && type) {
+
+        const valid = await utils.valid_login(username, token, type);
+        if (valid === true) {
+            let data = await db("SELECT * FROM counter_dv_blacklist where username = ?", [username]);
+
+            return res.send({status : "ok", data});
+        } else
+            return res.send({status : "ko"});
+    }
+
+    return res.send({status : "ko", data : "no_infos"});
+});
+
+/**
     Gets the hitlist for an user
  @username - steem username
  @token - steemconnect or keychain token
@@ -215,6 +241,51 @@ router.post('/add_whitelist',urlencodedParser, async function(req, res, next) {
 });
 
 /**
+    adds an user to the counter downvote blacklist of an user
+    @param username - steem username
+    @param token - steemconnect or keychain token
+    @param type - steemconnect or keychain
+    @param trailed - steem username of the trailed user
+ */
+router.post('/add_counter_dv_blacklist',urlencodedParser, async function(req, res, next) {
+
+    const username = sanitize(req.body.username);
+    const token = sanitize(req.body.token);
+    const trailed = sanitize(req.body.trailed);
+    const type = sanitize(req.body.type);
+
+    if (username && token && type) {
+
+        let trailed_schema = Joi.object().keys({
+            username: Joi.string().min(3).max(16).required(),
+        });
+
+        let test = Joi.validate({username : trailed}, trailed_schema);
+
+        if (test.error !== null) {
+            return res.send({status : "ko"});
+        }
+
+        const valid = await utils.valid_login(username, token, type);
+
+        if (valid === true) {
+
+            let data = await db("SELECT 1 from counter_dv_blacklist where username = ? and trailed = ?", [username, trailed]);
+            if (data.length !== 0) {
+                return res.send({status: "ko", error: "already exists"});
+            }
+
+            await db("INSERT INTO counter_dv_blacklist(id, username, trailed) VALUE(NULL, ?, ?)", [username, trailed]);
+
+            return res.send({status : "ok"});
+        } else
+            return res.send({status : "ko"});
+    }
+
+    return res.send({status : "ko", data : "no_infos"});
+});
+
+/**
     adds an author to the hitlist of an user
     @username - steem username
     @token - steemconnect or keychain token
@@ -341,6 +412,46 @@ router.post('/remove_whitelist',urlencodedParser, async function(req, res, next)
         if (valid === true) {
 
             await db("DELETE FROM whitelist WHERE username = ? AND trailed = ?", [username, trailed]);
+
+            return res.send({status : "ok"});
+        } else
+            return res.send({status : "ko"});
+    }
+
+    return res.send({status : "ko", data : "no_infos"});
+});
+
+/**
+ Removes an user from the counter downvote blacklist
+ @username - steem username
+ @token - steemconnect or keychain token
+ @type - steemconnect or keychain
+ @trailed  - steem username of the user to un-whitelist
+ */
+router.post('/remove_counter_dv_blacklist',urlencodedParser, async function(req, res, next) {
+
+    const username = sanitize(req.body.username);
+    const token = sanitize(req.body.token);
+    const type = sanitize(req.body.type);
+    const trailed = sanitize(req.body.trailed);
+
+    if (username && token && type) {
+
+        let trailed_schema = Joi.object().keys({
+            username: Joi.string().min(3).max(16).required(),
+        });
+
+        let test = Joi.validate({username : trailed}, trailed_schema);
+
+        if (test.error !== null) {
+            return res.send({status : "ko"});
+        }
+
+        const valid = await utils.valid_login(username, token, type);
+
+        if (valid === true) {
+
+            await db("DELETE FROM counter_dv_blacklist WHERE username = ? AND trailed = ?", [username, trailed]);
 
             return res.send({status : "ok"});
         } else
