@@ -12,8 +12,8 @@ const urlencodedParser = bodyParser.urlencoded({limit: '500kb', extended: true})
 /**
     Gets the various trails for an user, includes trail downvotes, counter downvotes and counter upvotes
     @username - steem username
-    @token - steemconnect or keychain token
-    @type - steemconnect or keychain
+    @token - hivesigner or keychain token
+    @type - hivesigner or keychain
  */
 router.post('/get_trail',urlencodedParser, async function(req, res, next) {
     const username = sanitize(req.body.username);
@@ -37,8 +37,8 @@ router.post('/get_trail',urlencodedParser, async function(req, res, next) {
 /**
  Gets the whitelist for an user
  @username - steem username
- @token - steemconnect or keychain token
- @type - steemconnect or keychain
+ @token - hivesigner or keychain token
+ @type - hivesigner or keychain
  */
 router.post('/get_whitelist',urlencodedParser, async function(req, res, next) {
 
@@ -63,8 +63,8 @@ router.post('/get_whitelist',urlencodedParser, async function(req, res, next) {
 /**
  Gets the counter downvote blacklist for an user
  @username - steem username
- @token - steemconnect or keychain token
- @type - steemconnect or keychain
+ @token - hivesigner or keychain token
+ @type - hivesigner or keychain
  */
 router.post('/get_counter_dv_blacklist',urlencodedParser, async function(req, res, next) {
 
@@ -89,8 +89,8 @@ router.post('/get_counter_dv_blacklist',urlencodedParser, async function(req, re
 /**
     Gets the hitlist for an user
  @username - steem username
- @token - steemconnect or keychain token
- @type - steemconnect or keychain
+ @token - hivesigner or keychain token
+ @type - hivesigner or keychain
  */
 router.post('/get_hitlist',urlencodedParser, async function(req, res, next) {
     const username = sanitize(req.body.username);
@@ -113,8 +113,8 @@ router.post('/get_hitlist',urlencodedParser, async function(req, res, next) {
 /**
     Gets the vote history for an user
  @username - steem username
- @token - steemconnect or keychain token
- @type - steemconnect or keychain
+ @token - hivesigner or keychain token
+ @type - hivesigner or keychain
  */
 router.post('/get_vote_history',urlencodedParser, async function(req, res, next) {
 
@@ -139,8 +139,8 @@ router.post('/get_vote_history',urlencodedParser, async function(req, res, next)
 /**
     adds a trail to an user
  @username - steem username
- @token - steemconnect or keychain token
- @type - steemconnect or keychain
+ @token - hivesigner or keychain token
+ @type - hivesigner or keychain
     @trailed - steem username of the trailed user
     @ratio - ratio for the vote
     @trail_type - type of the trail (trail downvotes, counter upvotes, counter downvotes)
@@ -196,8 +196,8 @@ router.post('/add_trail',urlencodedParser, async function(req, res, next) {
 /**
     adds a whitelisted user to an user
     @param username - steem username
-    @param token - steemconnect or keychain token
-    @param type - steemconnect or keychain
+    @param token - hivesigner or keychain token
+    @param type - hivesigner or keychain
     @param trailed - steem username of the trailed user
  */
 router.post('/add_whitelist',urlencodedParser, async function(req, res, next) {
@@ -241,8 +241,8 @@ router.post('/add_whitelist',urlencodedParser, async function(req, res, next) {
 /**
     adds an user to the counter downvote blacklist of an user
     @param username - steem username
-    @param token - steemconnect or keychain token
-    @param type - steemconnect or keychain
+    @param token - hivesigner or keychain token
+    @param type - hivesigner or keychain
     @param trailed - steem username of the trailed user
  */
 router.post('/add_counter_dv_blacklist',urlencodedParser, async function(req, res, next) {
@@ -286,8 +286,8 @@ router.post('/add_counter_dv_blacklist',urlencodedParser, async function(req, re
 /**
     adds an author to the hitlist of an user
     @username - steem username
-    @token - steemconnect or keychain token
-    @type - steemconnect or keychain
+    @token - hivesigner or keychain token
+    @type - hivesigner or keychain
     @author  - steem username of the author
     @percent  - percentage to hit the author with
  */
@@ -340,8 +340,8 @@ router.post('/add_hitlist',urlencodedParser, async function(req, res, next) {
 /**
  Removes a trail on an user
  @username - steem username
- @token - steemconnect or keychain token
- @type - steemconnect or keychain
+ @token - hivesigner or keychain token
+ @type - hivesigner or keychain
  @trailed  - steem username of the user to un-trail
  @trail_type  - Type of the trail
  */
@@ -382,8 +382,8 @@ router.post('/remove_trail',urlencodedParser, async function(req, res, next) {
 /**
  Removes an user from the whitelist
  @username - steem username
- @token - steemconnect or keychain token
- @type - steemconnect or keychain
+ @token - hivesigner or keychain token
+ @type - hivesigner or keychain
  @trailed  - steem username of the user to un-whitelist
  */
 router.post('/remove_whitelist',urlencodedParser, async function(req, res, next) {
@@ -422,8 +422,8 @@ router.post('/remove_whitelist',urlencodedParser, async function(req, res, next)
 /**
  Removes an user from the counter downvote blacklist
  @username - steem username
- @token - steemconnect or keychain token
- @type - steemconnect or keychain
+ @token - hivesigner or keychain token
+ @type - hivesigner or keychain
  @trailed  - steem username of the user to un-whitelist
  */
 router.post('/remove_counter_dv_blacklist',urlencodedParser, async function(req, res, next) {
@@ -462,8 +462,8 @@ router.post('/remove_counter_dv_blacklist',urlencodedParser, async function(req,
 /**
  Removes an user from the hitlist
  @username - steem username
- @token - steemconnect or keychain token
- @type - steemconnect or keychain
+ @token - hivesigner or keychain token
+ @type - hivesigner or keychain
  @author  - steem username of the author to un-hitlist
  */
 router.post('/remove_hitlist',urlencodedParser, async function(req, res, next) {
@@ -501,8 +501,8 @@ router.post('/remove_hitlist',urlencodedParser, async function(req, res, next) {
 /**
  Removes an user from the hitlist
  @username - steem username
- @token - steemconnect or keychain token
- @type - steemconnect or keychain
+ @token - hivesigner or keychain token
+ @type - hivesigner or keychain
  @settings  - Json object containing the user settings
  */
 router.post('/update_user_settings',urlencodedParser, async function(req, res, next) {
@@ -552,8 +552,8 @@ router.post('/update_user_settings',urlencodedParser, async function(req, res, n
 /**
  Unvote, used to undo executed votes
  @username - steem username
- @token - steemconnect or keychain token
- @type - steemconnect or keychain
+ @token - hivesigner or keychain token
+ @type - hivesigner or keychain
  @author - author of the post to unvote
  @permlink  - permlink of the post to unvote
  */

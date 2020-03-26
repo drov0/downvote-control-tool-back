@@ -22,7 +22,7 @@ The encryption password should be 32 char long
 
 then edit the file `config.js` in `/bin` and change the `account_username` field to the accounts you have chosen to hold the posting authorities.
 
-You also need to go on https://steemconnect.com/, register the account and set these redirect URIs :
+You also need to go on https://hivesigner.com/, register the account and set these redirect URIs :
 
 ```
 http://localhost:4002/auth/conf

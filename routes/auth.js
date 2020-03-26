@@ -1,7 +1,7 @@
 const utils = require("../bin/utils");
 
 var express = require('express');
-const sc2 = require('sc2-sdk');
+const sc2 = require('hivesigner');
 const config = require("../bin/config");
 const db = config.db;
 var router = express.Router();
@@ -97,10 +97,10 @@ function decrypt (encText, iv) {
 }
 
 /**
- steemconnect login, redirects to the steemconnect domain for auth
+ hivesigner login, redirects to the hivesigner domain for auth
  */
 router.get('/',  function(req, res, next) {
-    // init steemconnect
+    // init hivesigner
     let api = sc2.Initialize({
         app: config.account_username,
         callbackURL: req.app.get('env') === 'development' ? 'http://localhost:4002/auth/conf' : "https://back.downvotecontrol.com/auth/conf",
@@ -206,8 +206,8 @@ router.post('/keychain/login', async function(req, res, next) {
 /**
  Used for returning users, gets all the data of an user
  @username - steem username
- @token - steemconnect or keychain token
- @type - steemconnect or keychain
+ @token - hivesigner or keychain token
+ @type - hivesigner or keychain
  */
 router.post('/user',urlencodedParser, async function(req, res, next) {
 
@@ -235,9 +235,9 @@ router.post('/user',urlencodedParser, async function(req, res, next) {
 
 
 /**
- Callback for steemconnect login
+ Callback for hivesigner login
  @username - steem username
- @access_token - steemconnect token
+ @access_token - hivesigner token
  */
 router.get('/conf',async function(req, res, next) {
 
@@ -281,8 +281,8 @@ router.get('/conf',async function(req, res, next) {
 /**
  logout
  @username - steem username
- @token - steemconnect or keychain token
- @type - steemconnect or keychain
+ @token - hivesigner or keychain token
+ @type - hivesigner or keychain
  */
 router.post('/logout',urlencodedParser, async function(req, res, next) {
 
