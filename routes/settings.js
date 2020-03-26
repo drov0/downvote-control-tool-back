@@ -3,13 +3,11 @@ const db = require("../bin/config").db;
 
 var express = require('express');
 var router = express.Router();
-const dsteem = require('dsteem');
 const bodyParser = require('body-parser');
 const sanitize = require("xss");
 const Joi = require('joi');
 
 const urlencodedParser = bodyParser.urlencoded({limit: '500kb', extended: true});
-const client = new dsteem.Client('https://api.steemit.com');
 
 /**
     Gets the various trails for an user, includes trail downvotes, counter downvotes and counter upvotes

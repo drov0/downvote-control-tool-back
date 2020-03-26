@@ -6,10 +6,10 @@ const config = require("../bin/config");
 const db = config.db;
 var router = express.Router();
 
-const dsteem = require('dsteem');
-const steem = require('steem');
-const client = new dsteem.Client('https://api.steemit.com');
+const dhive = require('@hivechain/dhive');
+const client = new dhive.Client('https://anyx.io');
 
+const steem = require('steem');
 const bodyParser = require('body-parser');
 const urlencodedParser = bodyParser.urlencoded({limit: '500kb', extended: true});
 const sanitize = require("xss");
